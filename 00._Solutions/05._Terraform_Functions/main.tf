@@ -12,12 +12,13 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "example" {
-  name     = "example-resources"
+  name     = "example-resource"
   location = "West Europe"
 }
 
 resource "azurerm_storage_account" "example" {
-  name                     = "examplestoracc"
+  # TODO: the name of the storage account must be globally unique across all Azure accounts
+  name                     = "examplestoraccountkea"
   resource_group_name      = azurerm_resource_group.example.name
   location                 = azurerm_resource_group.example.location
   account_tier             = "Standard"
@@ -27,25 +28,24 @@ resource "azurerm_storage_account" "example" {
 resource "azurerm_storage_container" "example" {
   name                  = "function-code"
   storage_account_name  = azurerm_storage_account.example.name
-  container_access_type = "private"
+  container_access_type = "blob" # "blob" means public, other options are: "private" or "container
 }
 
-resource "azurerm_app_service_plan" "example" {
+resource "azurerm_service_plan" "example" {
   name                = "example-asp"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
+  os_type             = "Linux"
 
-  sku {
-    tier = "Standard"
-    size = "S1"
-  }
+  sku_name = "S1" 
 }
+
 
 resource "azurerm_function_app" "example" {
   name                       = "example-functionapp"
   location                   = azurerm_resource_group.example.location
   resource_group_name        = azurerm_resource_group.example.name
-  app_service_plan_id        = azurerm_app_service_plan.example.id
+  app_service_plan_id        = azurerm_service_plan.example.id
   storage_account_name       = azurerm_storage_account.example.name
   storage_account_access_key = azurerm_storage_account.example.primary_access_key
   os_type                    = "linux"
@@ -70,5 +70,5 @@ resource "azurerm_function_app_slot" "example" {
   storage_account_access_key = azurerm_storage_account.example.primary_access_key
   function_app_name          = azurerm_function_app.example.name
   resource_group_name        = azurerm_resource_group.example.name
-  app_service_plan_id        = azurerm_app_service_plan.example.id
+  app_service_plan_id        = azurerm_service_plan.example.id
 }

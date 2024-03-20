@@ -37,13 +37,14 @@ resource "azurerm_storage_account" "example" {
 resource "azurerm_storage_account_network_rules" "example" {
   storage_account_id = azurerm_storage_account.example.id
 
-  default_action             = "Allow"
-  ip_rules                   = ["127.0.0.1"]
+  default_action             = "Deny"
+  ip_rules                   = ["127.0.0.1"] # TODO add your IP address as an element in the list
   virtual_network_subnet_ids = [azurerm_subnet.example.id]
   bypass                     = ["Metrics"]
 }
 
 resource "azurerm_storage_container" "example" {
+  # TODO: Give the container a better name
   name                  = "vhds"
   storage_account_name  = azurerm_storage_account.example.name
   container_access_type = "private"

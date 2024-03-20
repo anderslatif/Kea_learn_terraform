@@ -12,12 +12,13 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "example" {
-  name     = "example-resources"
+  name     = "example-resource"
   location = "West Europe"
 }
 
 resource "azurerm_storage_account" "example" {
-  name                     = "examplestoracc"
+  # TODO: the name of the storage account must be globally unique across all Azure accounts
+  name                     = "examplestoraccountkea"
   resource_group_name      = azurerm_resource_group.example.name
   location                 = azurerm_resource_group.example.location
   account_tier             = "Standard"
@@ -27,7 +28,7 @@ resource "azurerm_storage_account" "example" {
 resource "azurerm_storage_container" "example" {
   name                  = "function-code"
   storage_account_name  = azurerm_storage_account.example.name
-  container_access_type = "private"
+  container_access_type = "blob" # "blob" means public, other options are: "private" or "container
 }
 
 resource "azurerm_app_service_plan" "example" {

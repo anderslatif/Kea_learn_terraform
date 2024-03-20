@@ -37,11 +37,10 @@ resource "azurerm_public_ip" "example" {
   allocation_method   = "Static"
 }
 
-resource "azurerm_network_interface" "example_nic" {
+resource "azurerm_network_interface" "example" {
   name                = "example-nic"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
-  network_security_group_id = azurerm_network_security_group.example_nsg.id
 
   ip_configuration {
     name                          = "internal"
@@ -67,7 +66,7 @@ resource "azurerm_linux_virtual_machine" "example" {
   source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
-    sku       = "22.04-LTS"
+    sku       = "16.04-LTS"
     version   = "latest"
   }
   admin_ssh_key {
