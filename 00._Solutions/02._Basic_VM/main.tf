@@ -44,7 +44,7 @@ resource "azurerm_network_interface" "internal" {
 }
 
 resource "azurerm_linux_virtual_machine" "main" {
-  name                = "terraform-introduction-vm"
+  name                = var.vm_name
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   size                = "Standard_B1s"
@@ -54,8 +54,8 @@ resource "azurerm_linux_virtual_machine" "main" {
   ]
 
   disable_password_authentication = false
-  admin_username                  = "azureuser"
-  admin_password                  = "Password1234!" # TODO: Change this to be defined as a variable
+  admin_username                  = var.vm_username
+  admin_password                  = var.vm_password
 
   computer_name = "terraform-introduction-vm"
   os_disk {
@@ -71,4 +71,32 @@ resource "azurerm_linux_virtual_machine" "main" {
     version   = "latest"
   }
 
+}
+
+resource "azurerm_public_ip" "static-public-ip-example" {
+  name                = "main-public-ip"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  allocation_method   = "Static"
+}
+
+
+resource "azurerm_network_security_group" "example_nsg" {
+  name                = "example-nsg"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+}
+
+resource "azurerm_network_security_rule" "example_ssh_rule" {
+  name                        = "SSH"
+  priority                    = 1000
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "22"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  network_security_group_name = azurerm_network_security_group.example_nsg.name
+  resource_group_name         = azurerm_resource_group.example.name
 }

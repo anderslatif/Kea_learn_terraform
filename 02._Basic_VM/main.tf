@@ -35,6 +35,8 @@ resource "azurerm_network_interface" "internal" {
   name                = "terraform-introduction-network-interface"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
+  # Associated the Network Security Group (bottom of the file) with the Network Interface
+  network_security_group_id = azurerm_network_security_group.example_nsg.id
 
   ip_configuration {
     name                          = "internal"
@@ -71,4 +73,28 @@ resource "azurerm_linux_virtual_machine" "main" {
     version   = "latest"
   }
 
+}
+
+# Allow SSH traffic (port 22) to the VM
+# requires creating a Network Security Group (NSG) first
+# and then defining a Network Security Rule within it
+
+resource "azurerm_network_security_group" "example_nsg" {
+  name                = "example-nsg"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+}
+
+resource "azurerm_network_security_rule" "example_ssh_rule" {
+  name                        = "SSH"
+  priority                    = 1000
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "22"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  network_security_group_name = azurerm_network_security_group.example_nsg.name
+  resource_group_name         = azurerm_resource_group.example.name
 }
