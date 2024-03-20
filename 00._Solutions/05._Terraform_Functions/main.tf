@@ -12,63 +12,78 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "example" {
-  name     = "example-resource"
+  name     = "example-group"
   location = "West Europe"
 }
 
 resource "azurerm_storage_account" "example" {
-  # TODO: the name of the storage account must be globally unique across all Azure accounts
-  name                     = "examplestoraccountkea"
+  # name                     = "todomustbegloballyunique"
+  name                     = "tzzzomustbeglosadz123123"
   resource_group_name      = azurerm_resource_group.example.name
   location                 = azurerm_resource_group.example.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
 }
 
-resource "azurerm_storage_container" "example" {
-  name                  = "function-code"
-  storage_account_name  = azurerm_storage_account.example.name
-  container_access_type = "blob" # "blob" means public, other options are: "private" or "container
-}
-
 resource "azurerm_service_plan" "example" {
-  name                = "example-asp"
+  name                = "example-service-plan"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
-  os_type             = "Linux"
-
-  sku_name = "S1" 
+  os_type             = "Windows"
+  sku_name            = "S1"
 }
 
+resource "azurerm_linux_function_app" "example" {
+  # name                = "todothismustalsobegloballyunique"
+  name                = "todothismustalsobegloball12312"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+  service_plan_id     = azurerm_service_plan.example.id
 
-resource "azurerm_function_app" "example" {
-  name                       = "example-functionapp"
-  location                   = azurerm_resource_group.example.location
-  resource_group_name        = azurerm_resource_group.example.name
-  app_service_plan_id        = azurerm_service_plan.example.id
   storage_account_name       = azurerm_storage_account.example.name
   storage_account_access_key = azurerm_storage_account.example.primary_access_key
-  os_type                    = "linux"
 
   app_settings = {
-    "FUNCTIONS_WORKER_RUNTIME" = "dotnet"
+    FUNCTIONS_WORKER_RUNTIME = "node"
+  }
+
+  site_config {
+    // Adjustments for Linux. You can specify versions or settings specific to your function's requirements
+    // For JavaScript, you may not need to specify a runtime version here.
   }
 }
 
-resource "azurerm_storage_blob" "example" {
-  name                   = "function-code.zip"
-  storage_account_name   = azurerm_storage_account.example.name
-  storage_container_name = azurerm_storage_container.example.name
-  type                   = "Block"
-  source                 = "./path_to_your_function_code.zip"
-}
+resource "azurerm_function_app_function" "example" {
+  name            = "example-function-app-function"
+  function_app_id = azurerm_linux_function_app.example.id
+  language        = "Javascript"
 
-resource "azurerm_function_app_slot" "example" {
-  name                       = "staging"
-  location                   = azurerm_resource_group.example.location
-  storage_account_name       = azurerm_storage_account.example.name
-  storage_account_access_key = azurerm_storage_account.example.primary_access_key
-  function_app_name          = azurerm_function_app.example.name
-  resource_group_name        = azurerm_resource_group.example.name
-  app_service_plan_id        = azurerm_service_plan.example.id
+  file {
+    name    = "index.js"
+    content = file("exampledata/index.js")
+  }
+
+  test_data = jsonencode({
+    "name" = "Azure"
+  })
+
+  config_json = jsonencode({
+    "bindings" = [
+      {
+        "authLevel" = "function",
+        "direction" = "in",
+        "methods" = [
+          "get",
+          "post",
+        ],
+        "name" = "req",
+        "type" = "httpTrigger"
+      },
+      {
+        "direction" = "out",
+        "name"      = "$return",
+        "type"      = "http"
+      },
+    ]
+  })
 }
