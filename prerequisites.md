@@ -22,3 +22,10 @@ Ensure that you are logged in to Azure via `az`. You should see at least one obj
 ```bash
 $ az account list
 ```
+
+
+Ensure that you have NodeJS installed:
+
+
+<a href="https://nodejs.org/en/download/package-manager">NodeJS download</a>
+
