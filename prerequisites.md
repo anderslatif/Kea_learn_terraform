@@ -15,7 +15,6 @@ $ terraform --version
 ## Azure CLI installation
 <a href="https://learn.microsoft.com/en-us/cli/azure/install-azure-cli">Azure CLI download</a>
 
-
 Ensure that `az` has been installed:
 
 ```bash
@@ -36,6 +35,4 @@ $ az account list
 ## NodeJS
 Ensure that you have NodeJS installed:
 
-
 <a href="https://nodejs.org/en/download/package-manager">NodeJS download</a>
-
